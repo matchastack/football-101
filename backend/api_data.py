@@ -2,7 +2,6 @@ import requests
 import os
 from dotenv import load_dotenv
 import pandas as pd
-import pickle
 
 load_dotenv()
 
@@ -10,15 +9,6 @@ HEADER = {
         "x-rapidapi-host" : os.getenv("RAPIDAPI_HOST"),
         "x-rapidapi-key" : os.getenv("RAPIDAPI_KEY")
     }
-
-def store_pkl(fname, object):
-    with open(fname, 'wb') as f:
-        pickle.dump(object, f)
-    return
-
-def load_pkl(fname):
-    with open(fname, 'rb') as f:
-        return pickle.load(f)
 
 def make_url(endpoint):
     return f"https://api-football-vl.p.rapidapi.com/v3{endpoint}"
