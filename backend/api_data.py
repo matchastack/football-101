@@ -28,7 +28,7 @@ def get_api_response(endpoint, headers=HEADER, method="GET"):
     response = requests.request(method, url, headers=headers)
     return response
 
-def get_leagues():
+def get_leagues_data():
     df = pd.DataFrame()
 
     ## get leagues data from api
@@ -42,12 +42,12 @@ def get_leagues():
         df = df.explode("seasons").reset_index(drop=True)
         ## unnest seasons column (dict)
         df = df.join(pd.json_normalize(df["seasons"])).drop(columns=["seasons"])
-        ## drop unwanted columns
-        df = df.drop(columns=[
-            "league.logo", "country.flag", "year", "current"
-            ])
+        ## select columns
+        df = df[["league.id", "league.name", "league.type", "start", "end"]]
         ## convert to datetime
         df["start"] = pd.to_datetime(df["start"])
         df["end"] = pd.to_datetime(df["end"])
+        ## rename columns
+        df.columns = ["id", "name", "type", "start", "end"]
 
     return df
