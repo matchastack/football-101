@@ -2,7 +2,7 @@ football analytics project
 
 ## data sources
 
-* api football for base
+* api-football as main data source
 * supplementary data through web-scraping
 
 postgresql for database
@@ -10,22 +10,7 @@ reason: future planning. read-write, better large dataset
 
 ### tables
 
-
-1. competition
-
-| column | type |
-| --- | --- |
-| country | VARCHAR(30) |
-| competition | VARCHAR(50) |
-
-2. teams
-| column | type |
-| --- | --- |
-| country | VARCHAR(30) |
-| competition | VARCHAR(50) |
-
-
-
+1. Leagues
 
 ## Docker
 

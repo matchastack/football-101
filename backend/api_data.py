@@ -42,5 +42,12 @@ def get_leagues():
         df = df.explode("seasons").reset_index(drop=True)
         ## unnest seasons column (dict)
         df = df.join(pd.json_normalize(df["seasons"])).drop(columns=["seasons"])
+        ## drop unwanted columns
+        df = df.drop(columns=[
+            "league.logo", "country.flag", "year", "current"
+            ])
+        ## convert to datetime
+        df["start"] = pd.to_datetime(df["start"])
+        df["end"] = pd.to_datetime(df["end"])
 
     return df
