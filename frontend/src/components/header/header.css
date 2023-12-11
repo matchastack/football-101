@@ -1,0 +1,98 @@
+:root {
+    --color-primary: #1980b4;
+    --color-secondary: #11648e;
+}
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    outline: none;
+}
+
+body {
+    font-family: sans-serif;
+}
+
+/* header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    width: 100%;
+} */
+
+.header-top {
+    background: var(--color-primary);
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.logo {
+    padding-left: 95px;
+}
+
+.nav-bar {
+    background: var(--color-secondary);
+    height: 50px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 5%;
+}
+
+.nav-bar ul {
+    display: flex; /* Use flexbox to arrange items */
+    list-style: none; /* Remove default list style */
+}
+
+.nav-bar ul li {
+    padding: 10px 30px; 
+    position: relative; /* Use relative positioning to position sublvl-1 */
+}
+
+.nav-bar ul li a {
+    color: #fff;
+    text-decoration: none; /* Remove default underline */
+    font-size: 20px;
+    transition: all ease 0.3s;
+}
+
+.sublvl-1 {
+    display: none; /* Hide sublvl-1 */
+}
+
+.nav-bar ul li a:hover {
+    color: #fff;
+}
+.nav-bar ul li:hover .sublvl-1 {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background-color: var(--color-secondary);
+}
+
+.nav-bar ul li:hover .sublvl-1 ul {
+    display: block;
+    margin: 10px;
+}
+
+.nav-bar ul li:hover .sublvl-1 ul li {
+    width: 150px;
+    padding: 10px;
+}
+
+.sublvl-2 {
+    display: none; /* Hide sublvl-2 */
+}
+
+.sublvl-1 ul li:hover .sublvl-2 {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 150px;
+    background-color: var(--color-secondary);
+}
