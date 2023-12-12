@@ -1,4 +1,4 @@
-import { COMPETITIONS, PAGES, makeURL } from "./utils";
+import { COMPETITIONS, PAGES, makeURL } from "../utils";
 
 // Function to map league items (second level)
 const mapLeagues = (leagues: string[]) =>
