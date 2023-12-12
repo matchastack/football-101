@@ -1,7 +1,6 @@
 import "./Header.css";
-import NavBar from "./NavBar";
 
-const TopHeader = () => {
+const Header = () => {
     return (
         <div className="logo">
             <a href="/home">
@@ -13,15 +12,6 @@ const TopHeader = () => {
                 />
             </a>
         </div>
-    );
-};
-
-const Header = () => {
-    return (
-        <header className="header-top">
-            <TopHeader />
-            <NavBar />
-        </header>
     );
 };
 

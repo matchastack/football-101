@@ -1,4 +1,5 @@
 import { COMPETITIONS, PAGES, makeURL } from "../utils";
+import "./NavBar.css";
 
 // Function to map league items (second level)
 const mapLeagues = (leagues: string[]) =>
