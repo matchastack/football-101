@@ -1,4 +1,5 @@
 import "./Header.css";
+import NavBar from "./NavBar";
 
 const TopHeader = () => {
     return (
@@ -17,9 +18,10 @@ const TopHeader = () => {
 
 const Header = () => {
     return (
-        <div className="header-top">
+        <header className="header-top">
             <TopHeader />
-        </div>
+            <NavBar />
+        </header>
     );
 };
 
