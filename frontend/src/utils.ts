@@ -1,5 +1,5 @@
 export const COMPETITIONS = {
-    England: ["Premier League"],
+    England: ["Premier League", "Championship", "League One", "League Two"],
     Germany: ["Bundesliga"],
     Spain: ["La Liga"],
     Italy: ["Serie A"],
