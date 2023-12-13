@@ -1,6 +1,7 @@
 :root {
     --color-primary: #1980b4;
     --color-secondary: #11648e;
+    --color-white: #ffffff;
 }
 
 * {
@@ -29,5 +30,5 @@ body {
 }
 
 .logo {
-    padding-left: 95px;
+    padding-left: 40px;
 }

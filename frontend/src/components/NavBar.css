@@ -1,63 +1,72 @@
-.nav-bar {
-    background: var(--color-secondary);
-    height: 50px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 5%;
-}
-
 .nav-bar ul {
-    display: flex; /* Use flexbox to arrange items */
-    list-style: none; /* Remove default list style */
-}
-
-.nav-bar ul li {
-    padding: 10px 30px; 
-    position: relative; /* Use relative positioning to position sublvl-1 */
-}
-
-.nav-bar ul li a {
-    color: #fff;
-    text-decoration: none; /* Remove default underline */
-    font-size: 20px;
-    transition: all ease 0.3s;
-}
-
-.sublvl-1 {
-    display: none; /* Hide sublvl-1 */
-}
-
-.nav-bar ul li a:hover {
-    color: #fff;
-}
-.nav-bar ul li:hover .sublvl-1 {
-    display: block;
-    position: absolute;
-    left: 0;
-    top: 100%;
+    list-style: none;
+    display: flex;
     background-color: var(--color-secondary);
 }
 
-.nav-bar ul li:hover .sublvl-1 ul {
+.nav-bar li {
+    position: relative; /* Establish positioning context for dropdown */
+}
+
+/* Style for the top-level navigation items */
+.nav-bar li > a {
     display: block;
-    margin: 10px;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: var(--color-white);
 }
 
-.nav-bar ul li:hover .sublvl-1 ul li {
-    width: 150px;
-    padding: 10px;
-}
-
+/* Hide sub-levels by default */
+.sublvl-1,
 .sublvl-2 {
-    display: none; /* Hide sublvl-2 */
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    /* background-color: var(--color-white); */
+    /* z-index: 1; */
 }
 
-.sublvl-1 ul li:hover .sublvl-2 {
+/* Show sub-levels on hover */
+.nav-bar li:hover > .sublvl-1,
+.nav-bar li:hover > .sublvl-2 {
     display: block;
-    position: absolute;
-    top: 0;
-    left: 150px;
-    background-color: var(--color-secondary);
+}
+
+/* Style for second-level navigation items */
+.sublvl-1 ul,
+.sublvl-2 ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sublvl-1 li {
+    margin: 0;
+}
+
+.sublvl-1 a {
+    padding: 8px 16px;
+    display: block;
+    color: #333; /* Change dropdown link color */
+    white-space: nowrap; /* Prevent wrapping of dropdown text */
+}
+
+
+.sublvl-1 ul li,
+.sublvl-2 ul li {
+    display: block;
+}
+
+.sublvl-1 ul li a,
+.sublvl-2 ul li a {
+    padding: 8px 15px;
+    text-decoration: none;
+    color: var(--color-white);
+}
+
+.nav-bar li:hover > a,
+.sublvl-1:hover > a,
+.sublvl-2:hover > a {
+    background: var(--color-primary);
 }
