@@ -8,12 +8,12 @@ services:
     ports:
       - "5432:5432" # delete after deployment
 
-  # web:
-  #   build: 
-  #     context: ../backend/
-  #     dockerfile: flask_dockerfile
-  #   ports:
-  #     - "9001:5000"
+  web:
+    build: 
+      context: ../frontend/
+      dockerfile: ../docker/frontend_dockerfile
+    ports:
+      - "9101:9101"
 
   # user:
   #   build:
