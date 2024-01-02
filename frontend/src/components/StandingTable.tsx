@@ -8,6 +8,7 @@ interface TeamData {
     points: number;
     goalsDiff: number;
     form: string;
+    id: number;
     "all.played": number;
     "all.win": number;
     "all.draw": number;
@@ -43,13 +44,19 @@ const formFormat = (form: string) => {
 
 const entries = (data: TeamData, index: number) => {
     return (
-        <tr key={index}>
+        <tr className="table-entry" key={index}>
             <td>{data["rank"]}</td>
             <td>
-                <span>
-                    <img src="../assets/images/insert.png" alt="logo"></img>
-                </span>
-                <span>{data["team"]}</span>
+                <div className="team-container">
+                    <div className="logo-container">
+                        <img
+                            className="standing-logo"
+                            src={`https://media.api-sports.io/football/teams/${data["id"]}.png`}
+                            alt="logo"
+                        />
+                    </div>
+                    <span>{data["team"]}</span>
+                </div>
             </td>
             <td>{data["all.played"]}</td>
             <td>{data["all.win"]}</td>

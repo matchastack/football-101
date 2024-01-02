@@ -15,10 +15,15 @@ th, td {
     }
 }
 
+.table-entry{
+    font-size: 20px;
+}
+
 .form {
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
+    font-size: 0.6em;
 }
 
 .result {
@@ -43,4 +48,18 @@ th, td {
 
 .result.L {
     background-color: red;
+}
+
+.team-container {
+    display: flex;
+    align-items: center; /* if you want to vertically align the logo and the team name */
+}
+
+.logo-container {
+    padding-right: 10px; /* adjust as needed */
+}
+
+.standing-logo {
+    width: 2em; /* adjust as needed */
+    height: 2em; /* adjust as needed */
 }
