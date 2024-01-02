@@ -28,13 +28,18 @@ interface TeamData {
     "away.goals.against": number;
 }
 
-// interface Props {
-//     data: TeamData[];
-// }
-
-// const FootballTable = ({ data }) => {
-//     return <table></table>;
-// };
+const formFormat = (form: string) => {
+    const formArray = form.split("");
+    return (
+        <div className="form">
+            {formArray.map((result, index) => (
+                <span key={index} className={`result ${result}`}>
+                    {result}
+                </span>
+            ))}
+        </div>
+    );
+};
 
 const entries = (data: TeamData, index: number) => {
     return (
@@ -56,7 +61,7 @@ const entries = (data: TeamData, index: number) => {
             <td>
                 <b>{data["points"]}</b>
             </td>
-            <td>{data["form"]}</td>
+            <td>{formFormat(data["form"])}</td>
             <td>
                 <button>
                     <svg

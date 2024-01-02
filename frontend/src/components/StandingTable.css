@@ -14,3 +14,33 @@ th, td {
         padding: 4px;
     }
 }
+
+.form {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+
+.result {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px; /* adjust as needed */
+    height: 20px; /* adjust as needed */
+    padding: 5px;
+    margin: 2px;
+    border-radius: 5px;
+    color: white;
+}
+
+.result.W {
+    background-color: green;
+}
+
+.result.D {
+    background-color: grey;
+}
+
+.result.L {
+    background-color: red;
+}
