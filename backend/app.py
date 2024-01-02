@@ -1,10 +1,12 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from api_data import get_premier_league_standing
 from utils import load_pkl
 
 test_df = load_pkl('../data/pl22.pkl')
 
 app = Flask(__name__)
+CORS(app)
 
 # Define your routes and API endpoints here
 @app.route('/', methods=['GET'])
