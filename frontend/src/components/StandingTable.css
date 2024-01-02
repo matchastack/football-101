@@ -63,3 +63,8 @@ th, td {
     width: 2em; /* adjust as needed */
     height: 2em; /* adjust as needed */
 }
+
+.expand-more {
+    border: none;
+    background: none;
+}

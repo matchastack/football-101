@@ -70,7 +70,7 @@ const entries = (data: TeamData, index: number) => {
             </td>
             <td>{formFormat(data["form"])}</td>
             <td>
-                <button>
+                <button className="expand-more">
                     <svg
                         width="24"
                         height="24"
