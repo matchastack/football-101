@@ -82,7 +82,8 @@ def get_league_standing(season:int, league_id:int=None, team_id:int=None):
         ## select columns
         df = df.drop(columns=["group", "status", "description", "update"])
 
-        ## rename columns
+        ## extract team name and id from team column
+        df["id"] = df["team"].apply(lambda x: x["id"])
         df["team"] = df["team"].apply(lambda x: x["name"])
 
         ## unnest columns
