@@ -1,5 +1,6 @@
 // Make an API request to fetch the data from your Flask backend
 import { useState, useEffect } from "react";
+import "./StandingTable.css";
 
 interface TeamData {
     rank: number;
