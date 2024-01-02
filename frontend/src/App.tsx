@@ -1,6 +1,7 @@
 import Header from "./components/Header";
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
+import StandingTable from "./components/StandingTable";
 
 function App() {
     return (
@@ -9,7 +10,9 @@ function App() {
                 <Header />
                 <NavBar />
             </header>
-            <body>Body Section</body>
+            <body>
+                <StandingTable />
+            </body>
             <footer>
                 <Footer />
             </footer>
