@@ -40,7 +40,12 @@ const entries = (data: TeamData, index: number) => {
     return (
         <tr key={index}>
             <td>{data["rank"]}</td>
-            <td>{data["team"]}</td>
+            <td>
+                <span>
+                    <img src="../assets/images/insert.png" alt="logo"></img>
+                </span>
+                <span>{data["team"]}</span>
+            </td>
             <td>{data["all.played"]}</td>
             <td>{data["all.win"]}</td>
             <td>{data["all.draw"]}</td>
@@ -48,7 +53,9 @@ const entries = (data: TeamData, index: number) => {
             <td>{data["all.goals.for"]}</td>
             <td>{data["all.goals.against"]}</td>
             <td>{data["goalsDiff"]}</td>
-            <td>{data["points"]}</td>
+            <td>
+                <b>{data["points"]}</b>
+            </td>
             <td>{data["form"]}</td>
             <td>
                 <button>
