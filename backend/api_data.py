@@ -113,3 +113,38 @@ def get_laliga_standing(season:int):
 ####################
 ##=== Fixtures ===##
 ####################
+
+def get_fixtures(league_id:int):
+    df = pd.DataFrame()
+    num_fixtures = 20
+
+    ## set args
+    args = {"league" : league_id, "next" : num_fixtures}
+
+    ## get fixtures data from api
+    r = get_api_response("/fixtures", args=args)
+
+    ## if response is successful, convert to pandas df
+    if r.status_code == 200:
+        ## unnest top layer json response, convert to pandas df
+        df = pd.json_normalize(r.json()["response"])
+        
+        ## select columns
+        df = df[['fixture.id', 'fixture.timezone', 'fixture.date', 
+                 'fixture.venue.name', 'fixture.venue.city', 
+                 'league.season', 'league.round', 
+                 'teams.home.id', 'teams.home.name', 'teams.away.id', 'teams.away.name']]
+        
+        ## convert to datetime
+        df["fixture.date"] = pd.to_datetime(df["fixture.date"], utc=True)
+        ## TODO: convert to local time using fixture.timezone
+        df = df.drop(columns=["fixture.timezone"])
+        
+        ## rename columns
+        df.columns = ['id', 'date', 'venue', 'city', 'season', 'round', 
+                      'home.id', 'home.name', 'away.id', 'away.name']
+
+    return df
+
+def get_premier_league_fixtures():
+    return get_fixtures(LEAGUES_ID["Premier League"])
