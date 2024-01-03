@@ -29,6 +29,10 @@ def get_api_response(endpoint, args:dict={}, headers=HEADER, method:str="GET"):
 ########################
 ###### Endpoints #######
 ########################
+
+###################
+##=== Leagues ===##
+###################
 def get_leagues_data():
     df = pd.DataFrame()
 
@@ -58,6 +62,9 @@ def get_leagues_data():
 
     return df
 
+#####################
+##=== Standings ===##
+#####################
 def get_league_standing(season:int, league_id:int=None, team_id:int=None):
     df = pd.DataFrame()
     
@@ -96,9 +103,13 @@ def get_league_standing(season:int, league_id:int=None, team_id:int=None):
 
     return df
 
-## get standings for specific leagues
+## standings for specific leagues
 def get_premier_league_standing(season:int):
     return get_league_standing(season, LEAGUES_ID["Premier League"])
 
 def get_laliga_standing(season:int):
     return get_league_standing(season, LEAGUES_ID["La-Liga"])
+
+####################
+##=== Fixtures ===##
+####################
