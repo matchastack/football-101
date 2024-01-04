@@ -1,21 +1,21 @@
-import Header from "./components/Header";
-import NavBar from "./components/NavBar";
-import Footer from "./components/Footer";
-import StandingTable from "./components/StandingTable";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import StandingTable from "./pages/Table";
 
 function App() {
     return (
         <>
-            <header className="header-top">
-                <Header />
-                <NavBar />
-            </header>
-            <body>
-                <StandingTable />
-            </body>
-            <footer>
-                <Footer />
-            </footer>
+            <BrowserRouter>
+                <Routes>
+                    <Route index element={<Home />} />
+                    <Route path="/home" element={<Home />} />
+                    <Route
+                        path="/premier-league/teams"
+                        element={<StandingTable />}
+                    />
+                    <Route path="*" element={<h1>404 Not Found</h1>} />
+                </Routes>
+            </BrowserRouter>
         </>
     );
 }
