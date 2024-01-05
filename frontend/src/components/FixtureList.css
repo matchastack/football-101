@@ -36,9 +36,18 @@
     order: 1;
 }
 
-.match-fixture-team-logo-container-left .match-fixture-team-logo,
-.match-fixture-team-logo-container-right .match-fixture-team-logo {
+.match-fixture-team-logo-container-left {
     order: 2;
+    padding-left: 10px;
+}
+
+.match-fixture-team-logo {
+    order: 2;
+}
+
+.match-fixture-team-logo-container-right {
+    order: 1;
+    padding-right: 10px;
 }
 
 .match-fixture-location,
