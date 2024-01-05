@@ -7,7 +7,7 @@ const Header = () => {
                 <img
                     width="300"
                     height="80"
-                    src="./src/assets/images/White logo - no background.svg"
+                    src="/src/assets/images/White logo - no background.svg"
                     alt="Football 101 Logo"
                 />
             </a>
