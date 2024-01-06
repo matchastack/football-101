@@ -1,0 +1,57 @@
+@media screen and (max-width: 600px) {
+    th, td {
+        padding: 4px;
+    }
+}
+
+.match-fixture {
+    list-style-type: none;
+    font-size: 20px;
+}
+
+.match-fixture-team-logo {
+    width: 2em; /* adjust as needed */
+    height: 2em; /* adjust as needed */
+}
+
+.match-fixture-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.match-fixture-teams {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+}
+
+.match-fixture-team {
+    display: flex;
+    align-items: center;
+}
+
+.match-fixture-team-name {
+    order: 1;
+}
+
+.match-fixture-team-logo-container-left {
+    order: 2;
+    padding-left: 10px;
+}
+
+.match-fixture-team-logo {
+    order: 2;
+}
+
+.match-fixture-team-logo-container-right {
+    order: 1;
+    padding-right: 10px;
+}
+
+.match-fixture-location,
+.match-fixture-more {
+    flex: 1;
+    text-align: center;
+}
