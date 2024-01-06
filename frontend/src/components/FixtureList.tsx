@@ -62,14 +62,19 @@ const fixture = (data: FixtureData, index: number) => {
 const FixtureList = () => {
     const [data, setData] = useState<FixtureData[]>([]);
     const [page, setPage] = useState(1);
+    const [isLoading, setIsLoading] = useState(false);
 
     const fetchData = (page: number) => {
         fetch(`http://localhost:9102/premier-league/fixtures?page=${page}`)
             .then((res) => res.json())
-            .then((newData) =>
-                setData((prevData) => [...prevData, ...JSON.parse(newData)])
-            )
-            .catch((err) => console.log("Error: ", err.message));
+            .then((newData) => {
+                setData((prevData) => [...prevData, ...JSON.parse(newData)]);
+                setIsLoading(false);
+            })
+            .catch((err) => {
+                console.log("Error: ", err.message);
+                setIsLoading(false);
+            });
     };
 
     useEffect(() => {
@@ -80,11 +85,16 @@ const FixtureList = () => {
     const lastFixtureElementRef = useCallback(
         (node: HTMLElement | null) => {
             if (observer.current) observer.current.disconnect();
-            observer.current = new IntersectionObserver((entries) => {
-                if (entries[0].isIntersecting) {
-                    setPage((prevPage) => prevPage + 1);
-                }
-            });
+            observer.current = new IntersectionObserver(
+                (entries) => {
+                    if (entries[0].isIntersecting) {
+                        setTimeout(() => {
+                            setPage((prevPage) => prevPage + 1);
+                        }, 1000); // 1-second delay
+                    }
+                },
+                { rootMargin: "100px" }
+            );
             if (node) observer.current.observe(node);
         },
         [] // Depend on your data fetching state variables
@@ -96,7 +106,10 @@ const FixtureList = () => {
                 {data.map((match, index) => {
                     if (data.length === index + 1) {
                         return (
-                            <li ref={lastFixtureElementRef}>
+                            <li
+                                ref={lastFixtureElementRef}
+                                style={{ marginBottom: "100px" }}
+                            >
                                 {fixture(match, index)}
                             </li>
                         );
@@ -104,6 +117,7 @@ const FixtureList = () => {
                         return <li>{fixture(match, index)}</li>;
                     }
                 })}
+                {isLoading && <div>Loading...</div>}
             </ul>
         </>
     );
