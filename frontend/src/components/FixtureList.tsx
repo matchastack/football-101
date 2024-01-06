@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import "./FixtureList.css";
 
 interface FixtureData {
@@ -58,21 +58,54 @@ const fixture = (data: FixtureData, index: number) => {
     );
 };
 
+// TODO: Add infinite scroll feature
 const FixtureList = () => {
     const [data, setData] = useState<FixtureData[]>([]);
+    const [page, setPage] = useState(1);
+
+    const fetchData = (page: number) => {
+        fetch(`http://localhost:9102/premier-league/fixtures?page=${page}`)
+            .then((res) => res.json())
+            .then((newData) =>
+                setData((prevData) => [...prevData, ...JSON.parse(newData)])
+            )
+            .catch((err) => console.log("Error: ", err.message));
+    };
 
     useEffect(() => {
-        fetch("http://localhost:9102/premier-league/fixtures")
-            .then((res) => res.json())
-            .then((data) => setData(JSON.parse(data)))
-            .catch((err) => console.log("Error: ", err.message));
-    }, []);
+        fetchData(page);
+    }, [page]);
+
+    const observer = useRef<IntersectionObserver | null>(null);
+    const lastFixtureElementRef = useCallback(
+        (node: HTMLElement | null) => {
+            if (observer.current) observer.current.disconnect();
+            observer.current = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    setPage((prevPage) => prevPage + 1);
+                }
+            });
+            if (node) observer.current.observe(node);
+        },
+        [] // Depend on your data fetching state variables
+    );
 
     return (
-        <ul className="match-list">
-            {data.map((data, index) => fixture(data, index))}
-        </ul>
+        <>
+            <ul className="match-list">
+                {data.map((match, index) => {
+                    if (data.length === index + 1) {
+                        return (
+                            <li ref={lastFixtureElementRef}>
+                                {fixture(match, index)}
+                            </li>
+                        );
+                    } else {
+                        return <li>{fixture(match, index)}</li>;
+                    }
+                })}
+            </ul>
+        </>
     );
 };
-
 export default FixtureList;
