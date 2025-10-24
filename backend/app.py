@@ -15,12 +15,12 @@ def test():
     return jsonify(message='api is working')
 
 @app.route('/premier-league/table', methods=['GET'])
-def get_premier_league_table():
+def premier_league_table():
     # return jsonify(get_premier_league_standing().to_json(orient='records', index=False))
     return jsonify(test_standing.to_json(orient='records', index=False))
 
 @app.route('/premier-league/fixtures', methods=['GET'])
-def get_premier_league_fixtures():
+def premier_league_fixtures():
     # return jsonify(get_premier_league_fixtures().to_json(orient='records', index=False))
     return jsonify(test_fixture.to_json(orient='records', index=False))
 
