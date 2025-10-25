@@ -125,21 +125,24 @@ const FixtureList = () => {
     }, [selectedSeason]);
 
     return (
-        <div>
-            <div className="season-selector">
-                <label htmlFor="season-select">Season: </label>
-                <select
-                    id="season-select"
-                    value={selectedSeason}
-                    onChange={(e) => setSelectedSeason(Number(e.target.value))}
-                >
-                    {seasons.map((season) => (
-                        <option key={season.id} value={season.year}>
-                            {season.year}/{season.year + 1}
-                            {season.is_current ? " (Current)" : ""}
-                        </option>
-                    ))}
-                </select>
+        <div className="fixtures-container">
+            <div className="fixtures-header">
+                <h1 className="fixtures-title">Premier League Fixtures</h1>
+                <div className="season-selector">
+                    <label htmlFor="season-select">Season:</label>
+                    <select
+                        id="season-select"
+                        value={selectedSeason}
+                        onChange={(e) => setSelectedSeason(Number(e.target.value))}
+                    >
+                        {seasons.map((season) => (
+                            <option key={season.id} value={season.year}>
+                                {season.year}/{season.year + 1}
+                                {season.is_current ? " (Current)" : ""}
+                            </option>
+                        ))}
+                    </select>
+                </div>
             </div>
 
             {loading ? (

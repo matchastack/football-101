@@ -148,21 +148,24 @@ const StandingTable = () => {
     }, [selectedSeason]);
 
     return (
-        <div>
-            <div className="season-selector">
-                <label htmlFor="season-select">Season: </label>
-                <select
-                    id="season-select"
-                    value={selectedSeason}
-                    onChange={(e) => setSelectedSeason(Number(e.target.value))}
-                >
-                    {seasons.map((season) => (
-                        <option key={season.id} value={season.year}>
-                            {season.year}/{season.year + 1}
-                            {season.is_current ? " (Current)" : ""}
-                        </option>
-                    ))}
-                </select>
+        <div className="standings-container">
+            <div className="standings-header">
+                <h1 className="standings-title">Premier League Standings</h1>
+                <div className="season-selector">
+                    <label htmlFor="season-select">Season:</label>
+                    <select
+                        id="season-select"
+                        value={selectedSeason}
+                        onChange={(e) => setSelectedSeason(Number(e.target.value))}
+                    >
+                        {seasons.map((season) => (
+                            <option key={season.id} value={season.year}>
+                                {season.year}/{season.year + 1}
+                                {season.is_current ? " (Current)" : ""}
+                            </option>
+                        ))}
+                    </select>
+                </div>
             </div>
 
             {loading ? (
@@ -173,7 +176,7 @@ const StandingTable = () => {
                 <table>
                     <thead>
                         <tr>
-                            <th>Position</th>
+                            <th>Pos</th>
                             <th>Club</th>
                             <th>Played</th>
                             <th>Won</th>
@@ -184,7 +187,7 @@ const StandingTable = () => {
                             <th>GD</th>
                             <th>Points</th>
                             <th>Form</th>
-                            <th>More</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>{data.map((teamData, index) => entries(teamData, index))}</tbody>

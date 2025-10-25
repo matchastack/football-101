@@ -1,39 +1,74 @@
+.nav-bar {
+    background: rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+}
+
 .nav-bar ul {
     list-style: none;
     display: flex;
-    background-color: var(--color-secondary);
+    gap: 0.25rem;
+    padding: 0 2rem;
 }
 
 .nav-bar li {
-    position: relative; /* Establish positioning context for dropdown */
+    position: relative;
 }
 
-/* Style for the top-level navigation items */
 .nav-bar li > a {
     display: block;
-    padding: 10px 15px;
+    padding: 0.875rem 1.25rem;
     text-decoration: none;
     color: var(--color-white);
+    font-weight: 500;
+    font-size: 0.9375rem;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+    position: relative;
 }
 
-/* Hide sub-levels by default */
+.nav-bar li > a:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+.nav-bar li > a.active {
+    background: var(--color-secondary);
+    color: var(--color-primary);
+}
+
+/* Dropdown styling */
 .sublvl-1,
 .sublvl-2 {
     display: none;
     position: absolute;
     top: 100%;
     left: 0;
-    /* background-color: var(--color-white); */
-    /* z-index: 1; */
+    min-width: 200px;
+    background: var(--color-white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    z-index: 100;
 }
 
-/* Show sub-levels on hover */
 .nav-bar li:hover > .sublvl-1,
 .nav-bar li:hover > .sublvl-2 {
     display: block;
+    animation: fadeIn 0.2s ease;
 }
 
-/* Style for second-level navigation items */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .sublvl-1 ul,
 .sublvl-2 ul {
     list-style: none;
@@ -41,32 +76,25 @@
     margin: 0;
 }
 
-.sublvl-1 li {
+.sublvl-1 li,
+.sublvl-2 li {
     margin: 0;
 }
 
-.sublvl-1 a {
-    padding: 8px 16px;
+.sublvl-1 a,
+.sublvl-2 a {
+    padding: 0.75rem 1rem;
     display: block;
-    color: #333; /* Change dropdown link color */
-    white-space: nowrap; /* Prevent wrapping of dropdown text */
+    color: var(--color-gray-700);
+    white-space: nowrap;
+    border-radius: var(--radius-sm);
+    transition: all 0.15s ease;
+    font-size: 0.9375rem;
 }
 
-
-.sublvl-1 ul li,
-.sublvl-2 ul li {
-    display: block;
-}
-
-.sublvl-1 ul li a,
-.sublvl-2 ul li a {
-    padding: 8px 15px;
-    text-decoration: none;
-    color: var(--color-white);
-}
-
-.nav-bar li:hover > a,
-.sublvl-1:hover > a,
-.sublvl-2:hover > a {
-    background: var(--color-primary);
+.sublvl-1 a:hover,
+.sublvl-2 a:hover {
+    background: var(--color-gray-100);
+    color: var(--color-primary);
+    transform: translateX(4px);
 }
