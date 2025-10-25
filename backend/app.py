@@ -32,7 +32,7 @@ class Config:
     DEBUG = True
     PORT = 9102
     DEFAULT_LEAGUE = "Premier League"
-    DEFAULT_SEASON = 2024
+    DEFAULT_SEASON = 2025
 
 
 # Initialize Flask app

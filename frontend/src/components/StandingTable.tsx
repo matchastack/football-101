@@ -117,7 +117,7 @@ const entries = (data: TeamData, index: number) => {
 const StandingTable = () => {
     const [data, setData] = useState<TeamData[]>([]);
     const [seasons, setSeasons] = useState<Season[]>([]);
-    const [selectedSeason, setSelectedSeason] = useState<number>(2024);
+    const [selectedSeason, setSelectedSeason] = useState<number | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -133,6 +133,9 @@ const StandingTable = () => {
                     const currentSeason = response.data.data.find((s: Season) => s.is_current);
                     if (currentSeason) {
                         setSelectedSeason(currentSeason.year);
+                    } else if (response.data.data.length > 0) {
+                        // If no current season is set, use the most recent one
+                        setSelectedSeason(response.data.data[0].year);
                     }
                 }
             })
@@ -141,6 +144,10 @@ const StandingTable = () => {
 
     // Fetch standings for selected season
     useEffect(() => {
+        if (selectedSeason === null) {
+            return; // Don't fetch until season is selected
+        }
+
         setLoading(true);
         setError(null);
 
