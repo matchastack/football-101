@@ -3,21 +3,21 @@ import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 import FixtureList from "../components/FixtureList";
 
-const Table = () => {
+const Fixtures = () => {
     return (
-        <>
-            <header className="header-top">
+        <div className="min-h-screen flex flex-col">
+            <header className="bg-gradient-to-br from-primary to-primary-light shadow-card sticky top-0 z-50">
                 <Header />
                 <NavBar />
             </header>
-            <body>
+            <main className="flex-1">
                 <FixtureList />
-            </body>
+            </main>
             <footer>
                 <Footer />
             </footer>
-        </>
+        </div>
     );
 };
 
-export default Table;
+export default Fixtures;

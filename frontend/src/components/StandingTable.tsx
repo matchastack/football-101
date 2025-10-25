@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import "./StandingTable.css";
 
 interface TeamData {
     rank: number;
@@ -38,10 +37,20 @@ interface Season {
 
 const formFormat = (form: string) => {
     const formArray = form.split("");
+    const getResultClass = (result: string) => {
+        if (result === 'W') return 'bg-gradient-to-br from-green-500 to-green-600';
+        if (result === 'D') return 'bg-gradient-to-br from-gray-500 to-gray-600';
+        if (result === 'L') return 'bg-gradient-to-br from-red-500 to-red-600';
+        return '';
+    };
+
     return (
-        <div className="form">
+        <div className="flex gap-1 flex-nowrap justify-start">
             {formArray.map((result, index) => (
-                <span key={index} className={`result ${result}`}>
+                <span
+                    key={index}
+                    className={`flex justify-center items-center w-7 h-7 rounded-md text-white font-bold text-xs transition-transform hover:scale-110 ${getResultClass(result)}`}
+                >
                     {result}
                 </span>
             ))}
@@ -50,34 +59,43 @@ const formFormat = (form: string) => {
 };
 
 const entries = (data: TeamData, index: number) => {
+    // Determine border color based on position
+    let borderColor = '';
+    if (index < 4) borderColor = 'border-l-4 border-l-secondary'; // Champions League
+    else if (index === 4) borderColor = 'border-l-4 border-l-amber-400'; // Europa League
+    else if (index >= 17) borderColor = 'border-l-4 border-l-accent'; // Relegation
+
     return (
-        <tr className="table-entry" key={index}>
-            <td>{data.rank}</td>
-            <td>
-                <div className="team-container">
-                    <div className="logo-container">
+        <tr
+            key={index}
+            className={`transition-all duration-200 border-b border-gray-100 hover:bg-gray-50 hover:scale-[1.002] ${borderColor}`}
+        >
+            <td className="px-6 py-[1.125rem] pl-6 font-bold text-gray-900 text-base">{data.rank}</td>
+            <td className="px-3.5 py-[1.125rem] text-[0.9375rem] text-gray-700">
+                <div className="flex items-center gap-3 min-w-[200px]">
+                    <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
                         <img
-                            className="standing-logo"
+                            className="w-full h-full object-contain"
                             src={`https://media.api-sports.io/football/teams/${data.id}.png`}
                             alt="logo"
                         />
                     </div>
-                    <span>{data.team}</span>
+                    <span className="font-semibold text-gray-900">{data.team}</span>
                 </div>
             </td>
-            <td>{data.played}</td>
-            <td>{data.wins}</td>
-            <td>{data.draws}</td>
-            <td>{data.losses}</td>
-            <td>{data.goals_for}</td>
-            <td>{data.goals_against}</td>
-            <td>{data.goal_difference}</td>
-            <td>
-                <b>{data.points}</b>
+            <td className="px-3.5 py-[1.125rem] text-[0.9375rem] text-gray-700">{data.played}</td>
+            <td className="px-3.5 py-[1.125rem] text-[0.9375rem] text-gray-700">{data.wins}</td>
+            <td className="px-3.5 py-[1.125rem] text-[0.9375rem] text-gray-700">{data.draws}</td>
+            <td className="px-3.5 py-[1.125rem] text-[0.9375rem] text-gray-700">{data.losses}</td>
+            <td className="px-3.5 py-[1.125rem] text-[0.9375rem] text-gray-700">{data.goals_for}</td>
+            <td className="px-3.5 py-[1.125rem] text-[0.9375rem] text-gray-700">{data.goals_against}</td>
+            <td className="px-3.5 py-[1.125rem] text-[0.9375rem] text-gray-700">{data.goal_difference}</td>
+            <td className="px-3.5 py-[1.125rem] text-[0.9375rem] text-gray-700">
+                <b className="text-lg text-primary">{data.points}</b>
             </td>
-            <td>{formFormat(data.form)}</td>
-            <td>
-                <button className="expand-more">
+            <td className="px-3.5 py-[1.125rem] text-[0.9375rem] text-gray-700">{formFormat(data.form)}</td>
+            <td className="px-6 pr-6 py-[1.125rem] text-[0.9375rem] text-gray-700">
+                <button className="border-none bg-transparent cursor-pointer p-1.5 rounded-md transition-all duration-200 text-gray-400 hover:bg-gray-100 hover:text-primary hover:rotate-180">
                     <svg
                         width="24"
                         height="24"
@@ -148,15 +166,18 @@ const StandingTable = () => {
     }, [selectedSeason]);
 
     return (
-        <div className="standings-container">
-            <div className="standings-header">
-                <h1 className="standings-title">Premier League Standings</h1>
-                <div className="season-selector">
-                    <label htmlFor="season-select">Season:</label>
+        <div className="max-w-[1400px] mx-auto my-8 px-6">
+            <div className="bg-white p-6 md:p-8 rounded-xl shadow-card mb-6">
+                <h1 className="text-3xl font-bold text-gray-900 mb-4">Premier League Standings</h1>
+                <div className="flex items-center gap-3">
+                    <label htmlFor="season-select" className="font-semibold text-gray-700 text-[0.9375rem]">
+                        Season:
+                    </label>
                     <select
                         id="season-select"
                         value={selectedSeason}
                         onChange={(e) => setSelectedSeason(Number(e.target.value))}
+                        className="px-4 py-2.5 border-2 border-gray-200 rounded-lg text-[0.9375rem] font-medium text-gray-900 bg-white cursor-pointer transition-all duration-200 hover:border-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10"
                     >
                         {seasons.map((season) => (
                             <option key={season.id} value={season.year}>
@@ -169,29 +190,57 @@ const StandingTable = () => {
             </div>
 
             {loading ? (
-                <div className="loading">Loading standings...</div>
+                <div className="text-center py-12 bg-white rounded-xl shadow-card">
+                    <p className="text-gray-600 text-lg">Loading standings...</p>
+                </div>
             ) : error ? (
-                <div className="error">{error}</div>
+                <div className="text-center py-12 bg-white rounded-xl shadow-card">
+                    <p className="text-accent text-lg font-medium">{error}</p>
+                </div>
             ) : (
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Pos</th>
-                            <th>Club</th>
-                            <th>Played</th>
-                            <th>Won</th>
-                            <th>Drawn</th>
-                            <th>Lost</th>
-                            <th>GF</th>
-                            <th>GA</th>
-                            <th>GD</th>
-                            <th>Points</th>
-                            <th>Form</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>{data.map((teamData, index) => entries(teamData, index))}</tbody>
-                </table>
+                <div className="overflow-hidden rounded-xl shadow-card">
+                    <table className="w-full border-separate border-spacing-0 bg-white">
+                        <thead className="bg-gradient-to-br from-primary to-primary-light">
+                            <tr>
+                                <th className="px-6 py-4 pl-6 text-left font-semibold text-sm uppercase tracking-wider text-white whitespace-nowrap">
+                                    Pos
+                                </th>
+                                <th className="px-3.5 py-4 text-left font-semibold text-sm uppercase tracking-wider text-white whitespace-nowrap">
+                                    Club
+                                </th>
+                                <th className="px-3.5 py-4 text-left font-semibold text-sm uppercase tracking-wider text-white whitespace-nowrap">
+                                    Played
+                                </th>
+                                <th className="px-3.5 py-4 text-left font-semibold text-sm uppercase tracking-wider text-white whitespace-nowrap">
+                                    Won
+                                </th>
+                                <th className="px-3.5 py-4 text-left font-semibold text-sm uppercase tracking-wider text-white whitespace-nowrap">
+                                    Drawn
+                                </th>
+                                <th className="px-3.5 py-4 text-left font-semibold text-sm uppercase tracking-wider text-white whitespace-nowrap">
+                                    Lost
+                                </th>
+                                <th className="px-3.5 py-4 text-left font-semibold text-sm uppercase tracking-wider text-white whitespace-nowrap">
+                                    GF
+                                </th>
+                                <th className="px-3.5 py-4 text-left font-semibold text-sm uppercase tracking-wider text-white whitespace-nowrap">
+                                    GA
+                                </th>
+                                <th className="px-3.5 py-4 text-left font-semibold text-sm uppercase tracking-wider text-white whitespace-nowrap">
+                                    GD
+                                </th>
+                                <th className="px-3.5 py-4 text-left font-semibold text-sm uppercase tracking-wider text-white whitespace-nowrap">
+                                    Points
+                                </th>
+                                <th className="px-3.5 py-4 text-left font-semibold text-sm uppercase tracking-wider text-white whitespace-nowrap">
+                                    Form
+                                </th>
+                                <th className="px-6 pr-6 py-4 text-left font-semibold text-sm uppercase tracking-wider text-white whitespace-nowrap"></th>
+                            </tr>
+                        </thead>
+                        <tbody>{data.map((teamData, index) => entries(teamData, index))}</tbody>
+                    </table>
+                </div>
             )}
         </div>
     );

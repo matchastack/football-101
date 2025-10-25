@@ -5,18 +5,18 @@ import StandingTable from "../components/StandingTable";
 
 const Table = () => {
     return (
-        <>
-            <header className="header-top">
+        <div className="min-h-screen flex flex-col">
+            <header className="bg-gradient-to-br from-primary to-primary-light shadow-card sticky top-0 z-50">
                 <Header />
                 <NavBar />
             </header>
-            <body>
+            <main className="flex-1">
                 <StandingTable />
-            </body>
+            </main>
             <footer>
                 <Footer />
             </footer>
-        </>
+        </div>
     );
 };
 
