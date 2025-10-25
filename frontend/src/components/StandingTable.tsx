@@ -1,32 +1,38 @@
-// Make an API request to fetch the data from your Flask backend
 import { useState, useEffect } from "react";
 import "./StandingTable.css";
 
 interface TeamData {
     rank: number;
-    team: string;
-    points: number;
-    goalsDiff: number;
-    form: string;
     id: number;
-    "all.played": number;
-    "all.win": number;
-    "all.draw": number;
-    "all.lose": number;
-    "all.goals.for": number;
-    "all.goals.against": number;
-    "home.played": number;
-    "home.win": number;
-    "home.draw": number;
-    "home.lose": number;
-    "home.goals.for": number;
-    "home.goals.against": number;
-    "away.played": number;
-    "away.win": number;
-    "away.draw": number;
-    "away.lose": number;
-    "away.goals.for": number;
-    "away.goals.against": number;
+    team: string;
+    logo_url: string | null;
+    points: number;
+    played: number;
+    wins: number;
+    draws: number;
+    losses: number;
+    goals_for: number;
+    goals_against: number;
+    goal_difference: number;
+    form: string;
+    home_played: number;
+    home_wins: number;
+    home_draws: number;
+    home_losses: number;
+    home_goals_for: number;
+    home_goals_against: number;
+    away_played: number;
+    away_wins: number;
+    away_draws: number;
+    away_losses: number;
+    away_goals_for: number;
+    away_goals_against: number;
+}
+
+interface Season {
+    id: number;
+    year: number;
+    is_current: boolean;
 }
 
 const formFormat = (form: string) => {
@@ -45,30 +51,30 @@ const formFormat = (form: string) => {
 const entries = (data: TeamData, index: number) => {
     return (
         <tr className="table-entry" key={index}>
-            <td>{data["rank"]}</td>
+            <td>{data.rank}</td>
             <td>
                 <div className="team-container">
                     <div className="logo-container">
                         <img
                             className="standing-logo"
-                            src={`https://media.api-sports.io/football/teams/${data["id"]}.png`}
+                            src={`https://media.api-sports.io/football/teams/${data.id}.png`}
                             alt="logo"
                         />
                     </div>
-                    <span>{data["team"]}</span>
+                    <span>{data.team}</span>
                 </div>
             </td>
-            <td>{data["all.played"]}</td>
-            <td>{data["all.win"]}</td>
-            <td>{data["all.draw"]}</td>
-            <td>{data["all.lose"]}</td>
-            <td>{data["all.goals.for"]}</td>
-            <td>{data["all.goals.against"]}</td>
-            <td>{data["goalsDiff"]}</td>
+            <td>{data.played}</td>
+            <td>{data.wins}</td>
+            <td>{data.draws}</td>
+            <td>{data.losses}</td>
+            <td>{data.goals_for}</td>
+            <td>{data.goals_against}</td>
+            <td>{data.goal_difference}</td>
             <td>
-                <b>{data["points"]}</b>
+                <b>{data.points}</b>
             </td>
-            <td>{formFormat(data["form"])}</td>
+            <td>{formFormat(data.form)}</td>
             <td>
                 <button className="expand-more">
                     <svg
@@ -90,35 +96,95 @@ const entries = (data: TeamData, index: number) => {
 };
 
 const StandingTable = () => {
-    const [data, setData] = useState<TeamData[]>([]); // Specify the type of data as an array of TeamData
+    const [data, setData] = useState<TeamData[]>([]);
+    const [seasons, setSeasons] = useState<Season[]>([]);
+    const [selectedSeason, setSelectedSeason] = useState<number>(2024);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
 
+    // Fetch available seasons
     useEffect(() => {
-        fetch("http://localhost:9102/premier-league/table")
+        fetch("http://localhost:9102/api/seasons?league=Premier%20League")
             .then((response) => response.json())
-            .then((data) => setData(JSON.parse(data)))
-            .catch((err) => console.error("Error: ", err.message));
+            .then((result) => {
+                if (result.success) {
+                    setSeasons(result.data);
+                    // Set current season as default
+                    const currentSeason = result.data.find((s: Season) => s.is_current);
+                    if (currentSeason) {
+                        setSelectedSeason(currentSeason.year);
+                    }
+                }
+            })
+            .catch((err) => console.error("Error fetching seasons: ", err.message));
     }, []);
 
+    // Fetch standings for selected season
+    useEffect(() => {
+        setLoading(true);
+        setError(null);
+
+        fetch(`http://localhost:9102/api/standings?league=Premier%20League&season=${selectedSeason}`)
+            .then((response) => response.json())
+            .then((result) => {
+                if (result.success) {
+                    setData(result.data);
+                } else {
+                    setError(result.error || "Failed to fetch standings");
+                }
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("Error: ", err.message);
+                setError("Failed to fetch standings");
+                setLoading(false);
+            });
+    }, [selectedSeason]);
+
     return (
-        <table>
-            <thead>
-                <tr>
-                    <th>Position</th>
-                    <th>Club</th>
-                    <th>Played</th>
-                    <th>Won</th>
-                    <th>Drawn</th>
-                    <th>Lost</th>
-                    <th>GF</th>
-                    <th>GA</th>
-                    <th>GD</th>
-                    <th>Points</th>
-                    <th>Form</th>
-                    <th>More</th>
-                </tr>
-            </thead>
-            <tbody>{data.map((data, index) => entries(data, index))}</tbody>
-        </table>
+        <div>
+            <div className="season-selector">
+                <label htmlFor="season-select">Season: </label>
+                <select
+                    id="season-select"
+                    value={selectedSeason}
+                    onChange={(e) => setSelectedSeason(Number(e.target.value))}
+                >
+                    {seasons.map((season) => (
+                        <option key={season.id} value={season.year}>
+                            {season.year}/{season.year + 1}
+                            {season.is_current ? " (Current)" : ""}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
+            {loading ? (
+                <div className="loading">Loading standings...</div>
+            ) : error ? (
+                <div className="error">{error}</div>
+            ) : (
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Position</th>
+                            <th>Club</th>
+                            <th>Played</th>
+                            <th>Won</th>
+                            <th>Drawn</th>
+                            <th>Lost</th>
+                            <th>GF</th>
+                            <th>GA</th>
+                            <th>GD</th>
+                            <th>Points</th>
+                            <th>Form</th>
+                            <th>More</th>
+                        </tr>
+                    </thead>
+                    <tbody>{data.map((teamData, index) => entries(teamData, index))}</tbody>
+                </table>
+            )}
+        </div>
     );
 };
 
