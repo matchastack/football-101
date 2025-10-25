@@ -2,19 +2,23 @@
 Football-101 Flask API Server.
 
 This module provides REST API endpoints for serving Premier League football data
-including standings and fixtures.
+from the PostgreSQL database. All data is served from the database only - no external
+API calls are made.
 """
 
 import logging
-import os
-from pathlib import Path
-from typing import Tuple
 
-from flask import Flask, jsonify, Response
+from flask import Flask, jsonify, Response, request
 from flask_cors import CORS
 
-from api_data import get_premier_league_standing, get_premier_league_fixtures
-from utils import load_pkl
+from upload import (
+    get_db_cursor,
+    get_standings_by_season,
+    get_fixtures_by_season,
+    get_all_teams,
+    get_team_by_id,
+    get_all_seasons
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -27,45 +31,13 @@ class Config:
 
     DEBUG = True
     PORT = 9102
-    DATA_DIR = Path("../data")
-    STANDINGS_CACHE = DATA_DIR / "pl22.pkl"
-    FIXTURES_CACHE = DATA_DIR / "fixtures.pkl"
-    USE_CACHE = True  # Set to False to use live API
+    DEFAULT_LEAGUE = "Premier League"
+    DEFAULT_SEASON = 2024
 
 
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)
-
-
-# Load cached data at startup
-def load_cached_data() -> Tuple:
-    """
-    Load cached data from pickle files.
-
-    Returns:
-        Tuple of (standings_df, fixtures_df)
-
-    Raises:
-        FileNotFoundError: If cache files don't exist
-    """
-    try:
-        standings = load_pkl(str(Config.STANDINGS_CACHE))
-        fixtures = load_pkl(str(Config.FIXTURES_CACHE))
-        logger.info("Successfully loaded cached data")
-        return standings, fixtures
-    except FileNotFoundError as e:
-        logger.error(f"Cache file not found: {e}")
-        raise
-
-
-# Load data if using cache
-if Config.USE_CACHE:
-    try:
-        cached_standings, cached_fixtures = load_cached_data()
-    except FileNotFoundError:
-        logger.warning("Cache files not found. API will fail until cache is created.")
-        cached_standings, cached_fixtures = None, None
 
 
 # API Routes
@@ -78,30 +50,225 @@ def health_check() -> Response:
     Returns:
         JSON response indicating API status
     """
-    return jsonify({"message": "api is working", "status": "healthy"})
+    return jsonify({
+        "message": "Football-101 API",
+        "status": "healthy",
+        "version": "1.0.0",
+        "data_source": "PostgreSQL Database"
+    })
 
 
-@app.route("/premier-league/table")
-def get_premier_league_table() -> Response:
+@app.route("/api/seasons")
+def get_seasons() -> Response:
     """
-    Get Premier League standings table.
+    Get all available seasons.
+
+    Query parameters:
+        league: Filter by league name (optional)
+
+    Returns:
+        JSON array of seasons
+    """
+    try:
+        league_name = request.args.get('league', Config.DEFAULT_LEAGUE)
+
+        with get_db_cursor() as cur:
+            seasons = get_all_seasons(cur, league_name)
+
+        return jsonify({
+            "success": True,
+            "count": len(seasons),
+            "data": seasons
+        })
+
+    except Exception as e:
+        logger.error(f"Error fetching seasons: {e}")
+        return jsonify({
+            "success": False,
+            "error": "Failed to fetch seasons"
+        }), 500
+
+
+@app.route("/api/standings")
+def get_standings() -> Response:
+    """
+    Get league standings.
+
+    Query parameters:
+        league: League name (default: Premier League)
+        season: Season year (default: 2024)
 
     Returns:
         JSON response with team standings data
-
-    Raises:
-        500 Internal Server Error if data retrieval fails
     """
     try:
-        if Config.USE_CACHE:
-            if cached_standings is None:
-                return jsonify({"error": "Cache not available"}), 500
-            data = cached_standings
-        else:
-            # Fetch live data from API
-            data = get_premier_league_standing(2022)
+        league_name = request.args.get('league', Config.DEFAULT_LEAGUE)
+        season_year = int(request.args.get('season', Config.DEFAULT_SEASON))
 
-        return jsonify(data.to_json(orient='records', index=False))
+        with get_db_cursor() as cur:
+            standings = get_standings_by_season(cur, league_name, season_year)
+
+        if not standings:
+            return jsonify({
+                "success": False,
+                "error": f"No standings found for {league_name} {season_year}"
+            }), 404
+
+        return jsonify({
+            "success": True,
+            "league": league_name,
+            "season": season_year,
+            "count": len(standings),
+            "data": standings
+        })
+
+    except ValueError:
+        return jsonify({
+            "success": False,
+            "error": "Invalid season parameter"
+        }), 400
+    except Exception as e:
+        logger.error(f"Error fetching standings: {e}")
+        return jsonify({
+            "success": False,
+            "error": "Failed to fetch standings"
+        }), 500
+
+
+@app.route("/api/fixtures")
+def get_fixtures() -> Response:
+    """
+    Get fixtures.
+
+    Query parameters:
+        league: League name (default: Premier League)
+        season: Season year (default: 2024)
+        limit: Maximum number of fixtures to return (optional)
+
+    Returns:
+        JSON response with fixtures data
+    """
+    try:
+        league_name = request.args.get('league', Config.DEFAULT_LEAGUE)
+        season_year = int(request.args.get('season', Config.DEFAULT_SEASON))
+        limit = request.args.get('limit', type=int)
+
+        with get_db_cursor() as cur:
+            fixtures = get_fixtures_by_season(cur, league_name, season_year, limit)
+
+        if not fixtures:
+            return jsonify({
+                "success": False,
+                "error": f"No fixtures found for {league_name} {season_year}"
+            }), 404
+
+        return jsonify({
+            "success": True,
+            "league": league_name,
+            "season": season_year,
+            "count": len(fixtures),
+            "data": fixtures
+        })
+
+    except ValueError:
+        return jsonify({
+            "success": False,
+            "error": "Invalid season or limit parameter"
+        }), 400
+    except Exception as e:
+        logger.error(f"Error fetching fixtures: {e}")
+        return jsonify({
+            "success": False,
+            "error": "Failed to fetch fixtures"
+        }), 500
+
+
+@app.route("/api/teams")
+def get_teams() -> Response:
+    """
+    Get all teams.
+
+    Query parameters:
+        league: Filter by league name (optional)
+
+    Returns:
+        JSON array of teams
+    """
+    try:
+        league_name = request.args.get('league')
+
+        with get_db_cursor() as cur:
+            teams = get_all_teams(cur, league_name)
+
+        return jsonify({
+            "success": True,
+            "count": len(teams),
+            "data": teams
+        })
+
+    except Exception as e:
+        logger.error(f"Error fetching teams: {e}")
+        return jsonify({
+            "success": False,
+            "error": "Failed to fetch teams"
+        }), 500
+
+
+@app.route("/api/teams/<int:team_id>")
+def get_team(team_id: int) -> Response:
+    """
+    Get team details by ID.
+
+    Args:
+        team_id: Team ID
+
+    Returns:
+        JSON response with team data
+    """
+    try:
+        with get_db_cursor() as cur:
+            team = get_team_by_id(cur, team_id)
+
+        if not team:
+            return jsonify({
+                "success": False,
+                "error": f"Team with ID {team_id} not found"
+            }), 404
+
+        return jsonify({
+            "success": True,
+            "data": team
+        })
+
+    except Exception as e:
+        logger.error(f"Error fetching team: {e}")
+        return jsonify({
+            "success": False,
+            "error": "Failed to fetch team"
+        }), 500
+
+
+# Legacy endpoints for backward compatibility
+@app.route("/premier-league/table")
+def get_premier_league_table_legacy() -> Response:
+    """
+    Get Premier League standings table (legacy endpoint).
+
+    Returns current season by default.
+    Use /api/standings?league=Premier League&season=2024 instead.
+
+    Returns:
+        JSON response with team standings data
+    """
+    try:
+        with get_db_cursor() as cur:
+            standings = get_standings_by_season(cur, "Premier League", Config.DEFAULT_SEASON)
+
+        if not standings:
+            return jsonify({"error": "No standings found"}), 404
+
+        # Return in original format for backward compatibility
+        return jsonify(standings)
 
     except Exception as e:
         logger.error(f"Error fetching standings: {e}")
@@ -109,26 +276,25 @@ def get_premier_league_table() -> Response:
 
 
 @app.route("/premier-league/fixtures")
-def get_premier_league_fixtures_endpoint() -> Response:
+def get_premier_league_fixtures_legacy() -> Response:
     """
-    Get Premier League fixtures.
+    Get Premier League fixtures (legacy endpoint).
+
+    Returns current season by default.
+    Use /api/fixtures?league=Premier League&season=2024 instead.
 
     Returns:
         JSON response with fixtures data
-
-    Raises:
-        500 Internal Server Error if data retrieval fails
     """
     try:
-        if Config.USE_CACHE:
-            if cached_fixtures is None:
-                return jsonify({"error": "Cache not available"}), 500
-            data = cached_fixtures
-        else:
-            # Fetch live data from API
-            data = get_premier_league_fixtures()
+        with get_db_cursor() as cur:
+            fixtures = get_fixtures_by_season(cur, "Premier League", Config.DEFAULT_SEASON, limit=50)
 
-        return jsonify(data.to_json(orient='records', index=False))
+        if not fixtures:
+            return jsonify({"error": "No fixtures found"}), 404
+
+        # Return in original format for backward compatibility
+        return jsonify(fixtures)
 
     except Exception as e:
         logger.error(f"Error fetching fixtures: {e}")

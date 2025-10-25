@@ -480,3 +480,285 @@ def get_upcoming_fixtures(cur: cursor, league_name: str = "Premier League", limi
     except psycopg2.Error as e:
         logger.error(f"Failed to get upcoming fixtures: {e}")
         raise
+
+
+def get_standings_by_season(cur: cursor, league_name: str, season_year: int) -> list:
+    """
+    Get standings for a specific season.
+
+    Args:
+        cur: Database cursor
+        league_name: League name
+        season_year: Season year
+
+    Returns:
+        List of dictionaries with standing data
+    """
+    try:
+        cur.execute("""
+            SELECT
+                st.rank,
+                t.id as team_id,
+                t.name as team,
+                t.logo_url,
+                st.points,
+                st.played,
+                st.wins,
+                st.draws,
+                st.losses,
+                st.goals_for,
+                st.goals_against,
+                st.goal_difference,
+                st.form,
+                st.home_played,
+                st.home_wins,
+                st.home_draws,
+                st.home_losses,
+                st.home_goals_for,
+                st.home_goals_against,
+                st.away_played,
+                st.away_wins,
+                st.away_draws,
+                st.away_losses,
+                st.away_goals_for,
+                st.away_goals_against
+            FROM standings st
+            JOIN teams t ON st.team_id = t.id
+            JOIN seasons s ON st.season_id = s.id
+            JOIN leagues l ON s.league_id = l.id
+            WHERE l.name = %s AND s.year = %s
+            ORDER BY st.rank
+        """, (league_name, season_year))
+
+        columns = [
+            'rank', 'id', 'team', 'logo_url', 'points', 'played', 'wins', 'draws', 'losses',
+            'goals_for', 'goals_against', 'goal_difference', 'form',
+            'home_played', 'home_wins', 'home_draws', 'home_losses', 'home_goals_for', 'home_goals_against',
+            'away_played', 'away_wins', 'away_draws', 'away_losses', 'away_goals_for', 'away_goals_against'
+        ]
+
+        results = []
+        for row in cur.fetchall():
+            results.append(dict(zip(columns, row)))
+
+        return results
+    except psycopg2.Error as e:
+        logger.error(f"Failed to get standings by season: {e}")
+        raise
+
+
+def get_fixtures_by_season(cur: cursor, league_name: str, season_year: int, limit: int = None) -> list:
+    """
+    Get fixtures for a specific season.
+
+    Args:
+        cur: Database cursor
+        league_name: League name
+        season_year: Season year
+        limit: Optional limit on number of fixtures
+
+    Returns:
+        List of dictionaries with fixture data
+    """
+    try:
+        query = """
+            SELECT
+                f.id,
+                f.date,
+                f.round,
+                f.venue,
+                f.city,
+                ht.id as home_id,
+                ht.name as home_name,
+                at.id as away_id,
+                at.name as away_name,
+                f.home_score,
+                f.away_score,
+                f.status
+            FROM fixtures f
+            JOIN teams ht ON f.home_team_id = ht.id
+            JOIN teams at ON f.away_team_id = at.id
+            JOIN seasons s ON f.season_id = s.id
+            JOIN leagues l ON s.league_id = l.id
+            WHERE l.name = %s AND s.year = %s
+            ORDER BY f.date
+        """
+
+        params = [league_name, season_year]
+        if limit:
+            query += " LIMIT %s"
+            params.append(limit)
+
+        cur.execute(query, params)
+
+        columns = [
+            'id', 'date', 'round', 'venue', 'city',
+            'home_id', 'home_name', 'away_id', 'away_name',
+            'home_score', 'away_score', 'status'
+        ]
+
+        results = []
+        for row in cur.fetchall():
+            result = dict(zip(columns, row))
+            # Convert datetime to ISO string
+            if result['date']:
+                result['date'] = result['date'].isoformat()
+            results.append(result)
+
+        return results
+    except psycopg2.Error as e:
+        logger.error(f"Failed to get fixtures by season: {e}")
+        raise
+
+
+def get_all_teams(cur: cursor, league_name: str = None) -> list:
+    """
+    Get all teams, optionally filtered by league.
+
+    Args:
+        cur: Database cursor
+        league_name: Optional league name to filter by
+
+    Returns:
+        List of dictionaries with team data
+    """
+    try:
+        if league_name:
+            # Get teams that have played in this league
+            cur.execute("""
+                SELECT DISTINCT
+                    t.id,
+                    t.name,
+                    t.code,
+                    t.country,
+                    t.founded,
+                    t.logo_url,
+                    t.venue_name,
+                    t.venue_city
+                FROM teams t
+                JOIN standings st ON t.id = st.team_id
+                JOIN seasons s ON st.season_id = s.id
+                JOIN leagues l ON s.league_id = l.id
+                WHERE l.name = %s
+                ORDER BY t.name
+            """, (league_name,))
+        else:
+            cur.execute("""
+                SELECT
+                    id,
+                    name,
+                    code,
+                    country,
+                    founded,
+                    logo_url,
+                    venue_name,
+                    venue_city
+                FROM teams
+                ORDER BY name
+            """)
+
+        columns = ['id', 'name', 'code', 'country', 'founded', 'logo_url', 'venue_name', 'venue_city']
+
+        results = []
+        for row in cur.fetchall():
+            results.append(dict(zip(columns, row)))
+
+        return results
+    except psycopg2.Error as e:
+        logger.error(f"Failed to get teams: {e}")
+        raise
+
+
+def get_team_by_id(cur: cursor, team_id: int) -> Optional[dict]:
+    """
+    Get team details by ID.
+
+    Args:
+        cur: Database cursor
+        team_id: Team ID
+
+    Returns:
+        Dictionary with team data or None if not found
+    """
+    try:
+        cur.execute("""
+            SELECT
+                id,
+                name,
+                code,
+                country,
+                founded,
+                logo_url,
+                venue_name,
+                venue_city
+            FROM teams
+            WHERE id = %s
+        """, (team_id,))
+
+        row = cur.fetchone()
+        if not row:
+            return None
+
+        columns = ['id', 'name', 'code', 'country', 'founded', 'logo_url', 'venue_name', 'venue_city']
+        return dict(zip(columns, row))
+    except psycopg2.Error as e:
+        logger.error(f"Failed to get team by ID: {e}")
+        raise
+
+
+def get_all_seasons(cur: cursor, league_name: str = None) -> list:
+    """
+    Get all seasons, optionally filtered by league.
+
+    Args:
+        cur: Database cursor
+        league_name: Optional league name to filter by
+
+    Returns:
+        List of dictionaries with season data
+    """
+    try:
+        if league_name:
+            cur.execute("""
+                SELECT
+                    s.id,
+                    s.year,
+                    s.start_date,
+                    s.end_date,
+                    s.is_current,
+                    l.name as league_name
+                FROM seasons s
+                JOIN leagues l ON s.league_id = l.id
+                WHERE l.name = %s
+                ORDER BY s.year DESC
+            """, (league_name,))
+        else:
+            cur.execute("""
+                SELECT
+                    s.id,
+                    s.year,
+                    s.start_date,
+                    s.end_date,
+                    s.is_current,
+                    l.name as league_name
+                FROM seasons s
+                JOIN leagues l ON s.league_id = l.id
+                ORDER BY s.year DESC
+            """)
+
+        columns = ['id', 'year', 'start_date', 'end_date', 'is_current', 'league_name']
+
+        results = []
+        for row in cur.fetchall():
+            result = dict(zip(columns, row))
+            # Convert dates to ISO strings
+            if result['start_date']:
+                result['start_date'] = result['start_date'].isoformat()
+            if result['end_date']:
+                result['end_date'] = result['end_date'].isoformat()
+            results.append(result)
+
+        return results
+    except psycopg2.Error as e:
+        logger.error(f"Failed to get seasons: {e}")
+        raise
