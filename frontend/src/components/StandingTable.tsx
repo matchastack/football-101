@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import "./StandingTable.css";
 
 interface TeamData {
@@ -104,13 +105,14 @@ const StandingTable = () => {
 
     // Fetch available seasons
     useEffect(() => {
-        fetch("http://localhost:9102/api/seasons?league=Premier%20League")
-            .then((response) => response.json())
-            .then((result) => {
-                if (result.success) {
-                    setSeasons(result.data);
+        axios.get("http://localhost:9102/api/seasons", {
+            params: { league: "Premier League" }
+        })
+            .then((response) => {
+                if (response.data.success) {
+                    setSeasons(response.data.data);
                     // Set current season as default
-                    const currentSeason = result.data.find((s: Season) => s.is_current);
+                    const currentSeason = response.data.data.find((s: Season) => s.is_current);
                     if (currentSeason) {
                         setSelectedSeason(currentSeason.year);
                     }
@@ -124,13 +126,17 @@ const StandingTable = () => {
         setLoading(true);
         setError(null);
 
-        fetch(`http://localhost:9102/api/standings?league=Premier%20League&season=${selectedSeason}`)
-            .then((response) => response.json())
-            .then((result) => {
-                if (result.success) {
-                    setData(result.data);
+        axios.get("http://localhost:9102/api/standings", {
+            params: {
+                league: "Premier League",
+                season: selectedSeason
+            }
+        })
+            .then((response) => {
+                if (response.data.success) {
+                    setData(response.data.data);
                 } else {
-                    setError(result.error || "Failed to fetch standings");
+                    setError(response.data.error || "Failed to fetch standings");
                 }
                 setLoading(false);
             })
